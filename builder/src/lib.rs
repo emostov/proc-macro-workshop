@@ -1,14 +1,16 @@
-use proc_macro::{Ident, TokenStream};
+use proc_macro2::{Ident, Span};
 use quote::{quote};
 use syn::{parse_macro_input, DeriveInput};
 
 #[proc_macro_derive(Builder)]
-pub fn derive(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input  as DeriveInput);
+pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let ast = parse_macro_input!(input as DeriveInput);
 
 	let ident = ast.ident;
-	let builder_name = format!("{}Builder", stringify!(name));
-	let builder_ident = Ident::new(build_name);
+	let builder_name = format!("{}Builder", ident);
+	let builder_ident = Ident::new(&builder_name, Span::call_site());
+
+	let fields = ast.
 
     let expanded = quote! {
 		pub struct #builder_ident {
@@ -18,8 +20,15 @@ pub fn derive(input: TokenStream) -> TokenStream {
 			current_dir: Option<String>,
 		}
 
-		impl #name {
-			pub fn builder() {}
+		impl #ident {
+			pub fn builder() -> #builder_ident {
+				#builder_ident {
+					executable: None,
+					args: None,
+					env: None,
+					current_dir: None,
+				}
+			}
 		}
 	 };
 
